@@ -1,9 +1,10 @@
 const Button = (props) => {
-    const { classname, children } = props;
+    const { classname, children, onClick = () => {} , type} = props;
     return (
       <button 
       className={`h-10 px-6 font-semibold rounded-md ${classname} text-white`}
-      type="submit"
+      type={type}
+      onClick={onClick}
       >
         {children}
       </button>
