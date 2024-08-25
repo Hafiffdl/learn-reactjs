@@ -2,7 +2,7 @@
 import CardProduct from "../components/Fragments/CardProduct";
 import Button from "../components/Elements/Button";
 
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 //list dalam react atau hit api
 const products = [
@@ -37,12 +37,23 @@ const products = [
 const email = localStorage.getItem("email");
 const ProductsPage = () => {
 
-    const [cart, setCart] = useState([
-        {
-            id: 1, 
-            qty: 1
-        },
-    ]);
+    const [cart, setCart] = useState([]);
+    const [totalPrice, setTotalPrice] = useState(0);
+
+    useEffect(() => {
+            setCart(JSON.parse(localStorage.getItem("cart")) || []); 
+    }, []);
+
+    useEffect(() => {
+        if(cart.length > 0) {
+            const sum = cart.reduce((acc, item) => {
+                const product = products.find((product) => product.id === item.id);
+                return acc + (product.price * item.qty);
+            } , 0);
+            setTotalPrice(sum);
+            localStorage.setItem("cart", JSON.stringify(cart));
+        }
+    }, [cart]); 
     const handleLogout = () => {
         localStorage.removeItem("email");
         localStorage.removeItem("password");
@@ -68,7 +79,7 @@ const ProductsPage = () => {
             {products.map(product => (
                 <CardProduct key={product.id}>
                     <CardProduct.CardHeader image={product.image}/>
-                        <CardProduct.CardBody title={product.title}>
+                        <CardProduct.CardBody name={product.name}>
                             {product.desc}
                         </CardProduct.CardBody>
                 <CardProduct.CardFooter 
@@ -101,6 +112,10 @@ const ProductsPage = () => {
                                     </tr>
                                 )
                             })}
+                            <tr>   
+                                <td colSpan="3">Total Price</td>
+                                <td>{totalPrice.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
+                            </tr>   
                         </tbody>
                     </table>    
                 </div>
